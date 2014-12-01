@@ -1,0 +1,55 @@
+# common params
+
+eps = 1e-7
+max_iter = 100
+
+# data params
+
+data_dir = data
+load_data = uci # 0, no - do not load; 1, csv - csv format; 2, uci - uci format
+data_name = kos
+
+# methods params
+
+# for gradient descent
+grad_desc_alpha = 1
+grad_desc_alpha_step = 0.8
+
+# for cnmf
+cnmf_alpha = 0.1
+cnmf_beta = 0.21
+
+# matrix parameters
+
+gen_phi = gen_matrix_topic
+gen_theta = gen_matrix_sparse
+gen_documents = 1
+phi_sparsity = 0.2
+theta_sparsity = 0.3
+
+phi_init = gen_matrix_topic
+theta_init = gen_matrix_sparse
+
+N = 100 # number of words
+M = 500 # number of documents
+T_0 = 16 # "real" number of topics
+T = 30 # number of topics
+
+# topic matrix params
+
+nnoise = 5
+nkernel = 25
+#shift = 5
+
+# experiments params
+
+run_info = run # none(0), results(1), run(2)
+runs = 1 # times to run the experiments
+schedule = my_als # schedule of methods (no spaces); all methods in methods.py
+measure = frobenius # measures to produce; all methods in measure.py
+compare_real = 0 # compare with real matrices 0, 1
+munkres = 1
+normalize_iter = 7 # iteration on what to apply normalization
+save_results = 0
+save_file = results.txt
+show_results = 1
