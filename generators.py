@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -18,7 +18,7 @@ def gen_matrix_sparse(params):
     cols = params['cols']
     sparsity = params['sparsity']
     M = np.zeros((rows, cols))
-    sz = int(rows * cols * sparsity)
+    sz = int(rows * cols * (1 - sparsity))
     idx0_t = [i for i in range(rows) for j in range(cols)]
     np.random.shuffle(idx0_t)
     idx0 = idx0_t[:sz]
@@ -27,10 +27,10 @@ def gen_matrix_sparse(params):
     idx1 = idx1_t[:sz]
     M[idx0, idx1] = np.random.sample(sz)
     if rows < cols:
-        M[:, :rows] = M[:, :rows] + np.eye(rows) * sparsity
-        M[0, rows:] = sparsity
+        M[:, :rows] = M[:, :rows] + np.eye(rows) * params['eps']
+        M[0, rows:] = params['eps']
     else:
-        M[:cols, :] = M[:cols, :] + np.eye(cols) * sparsity
+        M[:cols, :] = M[:cols, :] + np.eye(cols) * params['eps']
     return normalize_cols(M)
 
 
@@ -47,6 +47,10 @@ def gen_matrix_topic(params):
     N, T = params['rows'], params['cols']
     phi = np.zeros((N, T))
     sparse = params['sparsity'] # sparsness (the main parameter)
+    if sparse < params['eps']:
+        sparse = params['eps']
+    elif sparse > 1:
+        sparse = 1
     nkernel = params['nkernel'] # number of average kernel words in topic
     nnoise = params['nnoise'] # number of noise (smooth) topics
     ntopic = T - nnoise
@@ -54,13 +58,13 @@ def gen_matrix_topic(params):
     s = 0
     for i in range(ntopic):
         phi[s:s+kernel[i], i] = -np.sort(-np.random.exponential(0.5, kernel[i]))
-        s = s + kernel[i] * sparse
+        s = s + int(kernel[i] * sparse)
         if i < ntopic-1 and s + kernel[i+1] > N:
             kernel[i+1] = max(1, N - s)
             s = N - kernel[i+1]
     if N-s-kernel[-1]+1 > 0:
         if nnoise == 0:
-            phi[s+kernel[-1]-1:, :] = np.random.random_sample((N-s-kernel[-1]+2, T))
+            phi[s+kernel[-1]-1:, :] = np.random.random_sample((N-s-kernel[-1]+1, T))
         else:
             #phi[s+kernel[-1]-1:, ntopic:] = np.random.random_sample((N-s-kernel[-1]+1, nnoise))
             phi[:, ntopic:] = np.random.random_sample((N, nnoise))

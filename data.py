@@ -36,7 +36,7 @@ def store_uci(D, name=str(date.today()), cfg=config.default_config()):
         print(M, file=f)
         print(N, file=f)
         print(nw, file=f)
-        cD = coo_matrix(D)
+        cD = coo_matrix(D) # faster print
         for d, w, ndw in zip(cD.row, cD.col, cD.data):
             print(d + 1, w + 1, ndw, file=f)
     print('Done.')
