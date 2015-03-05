@@ -8,6 +8,7 @@ import measure
 from common import cost, normalize_cols, hellinger, print_head, get_permute
 from visualize import *
 from data import *
+from prepare import *
 
 #from munkres import Munkres
 import numpy as np
@@ -181,6 +182,9 @@ def main(config_file='config.txt', results_file='results.txt', cfg=None):
         (W, H) = gen_init(cfg)
         if cfg['print_lvl'] > 0:
             print('  Starting...')
+        if cfg['prepare'] > 0:
+            print('Preparing data...')
+            W, H = anchor_words(reduce_cluster(V, cfg), 'L2', cfg)
         start = time()
         (val, hdist, it, W, H, status) = run(V, W, H , W_r, H_r, cfg)
         stop = time()

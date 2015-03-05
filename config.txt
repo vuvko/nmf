@@ -3,6 +3,15 @@
 eps = 1e-7
 max_iter = 100
 
+# kmeans params
+
+num_clusters = 500
+kmeans_max_iter = 30
+
+# anchor params
+
+max_threads = 2
+
 # data params
 
 data_dir = data
@@ -30,9 +39,9 @@ theta_sparsity = 0.3
 phi_init = gen_matrix_topic
 theta_init = gen_matrix_sparse
 
-N = 100 # number of words
-M = 500 # number of documents
-T_0 = 16 # "real" number of topics
+N = 1000 # number of words
+M = 4000 # number of documents
+T_0 = 25 # "real" number of topics
 T = 30 # number of topics
 
 # topic matrix params
@@ -43,9 +52,10 @@ nkernel = 25
 
 # experiments params
 
+prepare = 1
 run_info = run # none(0), results(1), run(2)
 runs = 1 # times to run the experiments
-schedule = my_als # schedule of methods (no spaces); all methods in methods.py
+schedule = my_als,mult # schedule of methods (no spaces); all methods in methods.py
 measure = frobenius # measures to produce; all methods in measure.py
 compare_real = 0 # compare with real matrices 0, 1
 munkres = 1

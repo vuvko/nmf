@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import config
 from os.path import join
 from datetime import date
@@ -53,7 +55,7 @@ def load_uci(name, cfg=config.default_config()):
         D = np.zeros((N, M))
         f.readline()
         for line in f:
-            d, w, nwd = [int(x) for x in f.readline().split(' ')]
+            d, w, nwd = [int(x) for x in line.split(' ')]
             D[w-1, d-1] = D[w-1, d-1] + nwd
     vocab = np.array(range(N))
     with open(join(cfg['data_dir'], 'vocab.' + name + '.txt'), 'r') as f:
