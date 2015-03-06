@@ -34,9 +34,9 @@ def grad_desc(V, W, H, post='', cfg=config.default_config()):
 def als(V, W, H, post='', cfg=config.default_config()):
     #print('Alternating Least Squares.')
     eps = cfg['eps']
-    H = linalg.solve(dot(W.T, W), dot(W.T, V))
+    H = linalg.solve(dot(W.T, W) + eye(W.shape[1]) * eps, dot(W.T, V))
     H[H < eps] = 0
-    W = linalg.solve(dot(H, H.T), dot(H, V.T)).T
+    W = linalg.solve(dot(H, H.T) + eye(H.shape[0]) * eps, dot(H, V.T)).T
     W[W < eps] = 0
     return (W, H)
 

@@ -11,6 +11,7 @@ from data import *
 from prepare import *
 
 #from munkres import Munkres
+import os
 import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib as ml
@@ -73,9 +74,11 @@ def run(V, W, H, W_r=None, H_r=None, cfg=config.default_config()):
         m = Munkres()
         idx = get_permute(W_r, H_r, W, H, m, cfg['munkres'])
         hdist[0] = hellinger(W[:, idx[:, 1]], W_r[:, idx[:, 0]]) / T
-    
+    if cfg['print_lvl'] > 1:
+        print('Initial loss:', val[0])
     status = 0
     methods_num = len(schedule)
+    it = -1
     for it in range(cfg['max_iter']):
         if cfg['print_lvl'] > 1:
             print('Iteration', it+1)
@@ -85,7 +88,7 @@ def run(V, W, H, W_r=None, H_r=None, cfg=config.default_config()):
         if cfg['print_lvl'] > 1:
             print('Method:', method_name)
         method = getattr(methods, method_name)
-        (W, H) = method(V, W, H, methode_name, cfg)
+        (W, H) = method(V, W, H, method_name, cfg)
         if (it+1) % cfg['normalize_iter'] == 0:
             W = normalize_cols(W)
             H = normalize_cols(H)
@@ -148,10 +151,12 @@ def main(config_file='config.txt', results_file='results.txt', cfg=None):
         H_r = None
         N, M = V.shape
         cfg['N'], cfg['M'] = V.shape
+        print('Size:', N, M)
     elif cfg['load_data'] == 'csv' or cfg['load_data'] == 1:
         V, W_r, H_r = load(cfg['data_name'], cfg)
         N, M = V.shape
         cfg['N'], cfg['M'] = V.shape
+        print('Size:', N, M)
         cfg['T_0'] = W_r.shape[1]
     else:
         V, W_r, H_r = gen_real(cfg)
@@ -182,9 +187,67 @@ def main(config_file='config.txt', results_file='results.txt', cfg=None):
         (W, H) = gen_init(cfg)
         if cfg['print_lvl'] > 0:
             print('  Starting...')
+        
+        
+        #print('Preparing data...')
+        #centroids, labels = reduce_cluster(V, cfg['T'], cfg)
+        #H = centroids
+        #H[H < eps] = 0
+        #H = normalize_cols(H)
+        #print('Solving for W')
+        #W = linalg.solve(dot(H, H.T) + eye(H.shape[0]) * eps, dot(H, V.T)).T
+        #W[W < eps] = 0
+        #W = normalize_cols(W)
+        
+        #centroids, labels = reduce_cluster(V, cfg['num_clusters'], cfg)
+        #W = anchor_words(centroids, 'L2', cfg)
+        #print('Solving for H')
+        #H = linalg.solve(np.dot(W.T, W) + np.eye(W.shape[1]) * eps, np.dot(W.T, normalize_cols(centroids)))
+        #H[H < eps] = 0
+        #H = normalize_cols(H)
+        #W = unreduce_cluster(W, labels, cfg)
+        
+        labels=None
+        W = anchor_words(V, 'L2', cfg)
+        print('Solving for H')
+        H = linalg.solve(np.dot(W.T, W) + np.eye(W.shape[1]) * eps, np.dot(W.T, V))
+        H[H < eps] = 0
+        H = normalize_cols(H)
+        
+        
         if cfg['prepare'] > 0:
-            print('Preparing data...')
-            W, H = anchor_words(reduce_cluster(V, cfg), 'L2', cfg)
+            if r > 0:
+                print('Preparing data...')
+                if r == 1:
+                    W = anchor_words(V, 'L2', cfg)
+                    print('Solving for H')
+                    H = linalg.solve(np.dot(W.T, W) + np.eye(W.shape[1]) * eps, np.dot(W.T, V))
+                    H[H < eps] = 0
+                    H = normalize_cols(H)
+                elif r == 2:
+                    centroids, labels = reduce_cluster(V, cfg['T'], cfg)
+                    H = centroids
+                    H[H < eps] = 0
+                    H = normalize_cols(H)
+                    print('Solving for W')
+                    W = linalg.solve(dot(H, H.T) + eye(H.shape[0]) * eps, dot(H, V.T)).T
+                    W[W < eps] = 0
+                    W = normalize_cols(W)
+                elif r == 3:
+                    centroids, labels = reduce_cluster(V, cfg['num_clusters'], cfg)
+                    W = anchor_words(centroids, 'L2', cfg)
+                    print('Solving for H')
+                    H = linalg.solve(np.dot(W.T, W) + np.eye(W.shape[1]) * eps, np.dot(W.T, normalize_cols(centroids)))
+                    H[H < eps] = 0
+                    H = normalize_cols(H)
+                    W = unreduce_cluster(W, labels, cfg)
+        if cfg['compare_methods'] > 0:
+            if r == 0:
+                cfg['schedule'] = 'als'
+            elif r == 1:
+                cfg['schedule'] = 'mult'
+            elif r == 2:
+                cfg['schedule'] = 'my_als'
         start = time()
         (val, hdist, it, W, H, status) = run(V, W, H , W_r, H_r, cfg)
         stop = time()
@@ -217,12 +280,22 @@ def main(config_file='config.txt', results_file='results.txt', cfg=None):
     #            [print(val, file=rf) for val in res[:, r]]
     #            print_head(rf)
     if cfg['show_results']:
+        if not os.path.exists(cfg['result_dir']):
+            os.makedirs(cfg['result_dir'])
         show_topics(W, 10, vocab=vocab)
+        plot_matrix(V, 'Documents', labels)
+        filename = os.path.join(cfg['result_dir'], cfg['experiment']+'_V.eps')
+        plt.savefig(filename, format='eps')
+        plot_matrix(W, 'Word-topic', labels)
+        filename = os.path.join(cfg['result_dir'], cfg['experiment']+'_W.eps')
+        plt.savefig(filename, format='eps')
+        #plot_matrix(H, 'Topic-document')
         for i, fun_name in enumerate(cfg['measure'].split(',')):
             val = np.array([r[:, i] for r in res])
             fun = getattr(measure, fun_name + '_name')
             plot_measure(val.T, fun())
-            plt.savefig('tests/'+cfg['experiment']+'.eps', format='eps')
+            filename = os.path.join(cfg['result_dir'], cfg['experiment']+'_'+fun_name+'.eps')
+            plt.savefig(filename, format='eps')
         if cfg['compare_real']:
             plot_measure(np.array([r[:, 0] for r in hdist_runs]).T, measure.hellinger_name())
             show_matrices_recovered(W_r, H_r, W, H, m, cfg, permute=True)

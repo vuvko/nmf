@@ -1,22 +1,25 @@
 # common params
 
 eps = 1e-7
-max_iter = 100
+max_iter = 30
+seed = 444
+num_threads = 4
 
 # kmeans params
 
-num_clusters = 500
-kmeans_max_iter = 30
+num_clusters = 250
+kmeans_max_iter = 100
 
 # anchor params
 
-max_threads = 2
+max_threads = 0
+new_dim = 1000
 
 # data params
 
-data_dir = data
+data_dir = datasets
 load_data = uci # 0, no - do not load; 1, csv - csv format; 2, uci - uci format
-data_name = kos
+data_name = nips
 
 # methods params
 
@@ -36,30 +39,33 @@ gen_documents = 1
 phi_sparsity = 0.2
 theta_sparsity = 0.3
 
-phi_init = gen_matrix_topic
+phi_init = gen_matrix_sparse
 theta_init = gen_matrix_sparse
 
-N = 1000 # number of words
-M = 4000 # number of documents
-T_0 = 25 # "real" number of topics
-T = 30 # number of topics
+N = 100 # number of words
+M = 500 # number of documents
+T_0 = 15 # "real" number of topics
+T = 20 # number of topics
 
 # topic matrix params
 
-nnoise = 5
-nkernel = 25
+nnoise = 1
+nkernel = 4
 #shift = 5
 
 # experiments params
 
-prepare = 1
+experiment = test_nips_p1
+prepare = 0
+compare_methods = 0
 run_info = run # none(0), results(1), run(2)
 runs = 1 # times to run the experiments
-schedule = my_als,mult # schedule of methods (no spaces); all methods in methods.py
-measure = frobenius # measures to produce; all methods in measure.py
+schedule = als # schedule of methods (no spaces); all methods in methods.py
+measure = frobenius,perplexity # measures to produce; all methods in measure.py
 compare_real = 0 # compare with real matrices 0, 1
 munkres = 1
-normalize_iter = 7 # iteration on what to apply normalization
+normalize_iter = 1 # iteration on what to apply normalization
 save_results = 0
 save_file = results.txt
 show_results = 1
+result_dir = test/06_03_9/

@@ -17,7 +17,7 @@ def gen_matrix_sparse(params):
     rows = params['rows']
     cols = params['cols']
     sparsity = params['sparsity']
-    M = np.zeros((rows, cols))
+    M = np.zeros((rows, cols), dtype='float32')
     sz = int(rows * cols * (1 - sparsity))
     idx0_t = [i for i in range(rows) for j in range(cols)]
     np.random.shuffle(idx0_t)

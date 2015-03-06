@@ -42,16 +42,17 @@ def KL(p,log_p,q):
     ret = dot(p, log_diff)
     if ret < 0 or isnan(ret):
         print "invalid KL!"
-        print "p:"
-        for i in xrange(n):
-            print p[i]
-            if p[i] <= 0:
-                print "!!"
-        print "\nq:"
-        for i in xrange(n):
-            print q[i]
-            if q[i] <= 0:
-                print "!!"
+        print ret
+        #print "p:"
+        #for i in xrange(N):
+        #    print p[i]
+        #    if p[i] <= 0:
+        #        print "!!"
+        #print "\nq:"
+        #for i in xrange(N):
+        #    print q[i]
+        #    if q[i] <= 0:
+        #        print "!!"
         if ret < 0:
             print "less than 0", ret
         sys.exit(1)
@@ -499,7 +500,7 @@ def nonNegativeRecover(Q, anchors, outfile_name, divergence, max_threads, initia
                 v, it, obj, alpha, stepsize, t, gap= fastRecover((y,X,w,outfile_name+".recoveryLog",anchors,divergence,XXT,initial_stepsize, epsilon))
                 A[w, :] = alpha
                 if v % 1 == 0:
-                    print "word", v, it, "iterations. Gap", gap, "obj", obj, "final stepsize was", stepsize, "took", t, "seconds"
+                    #print "word", v, it, "iterations. Gap", gap, "obj", obj, "final stepsize was", stepsize, "took", t, "seconds"
                     print >>alphaLog, v, alpha
                     alphaLog.flush()
                     sys.stdout.flush()

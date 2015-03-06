@@ -52,7 +52,7 @@ def load_uci(name, cfg=config.default_config()):
     with open(join(cfg['data_dir'], 'docword.' + name + '.txt'), 'r') as f:
         M = int(f.readline())
         N = int(f.readline())
-        D = np.zeros((N, M))
+        D = np.zeros((N, M), dtype='float32')
         f.readline()
         for line in f:
             d, w, nwd = [int(x) for x in line.split(' ')]

@@ -3,10 +3,11 @@
 
 import matplotlib as ml
 import matplotlib.pyplot as plt
-import config
 from common import get_permute
-
 import numpy as np
+
+import config
+from bhtsne import bh_tsne
 
 
 def plot_measure(measure, name=None, title=None, fig=None):
@@ -14,10 +15,12 @@ def plot_measure(measure, name=None, title=None, fig=None):
     #plt.xlabel('Iteration', fontsize=32)
     plt.xticks(np.arange(0, measure.shape[0], 10))
     if name != None:
-        plt.ylabel(name, fontsize=32)
+        plt.ylabel(name, fontsize=13)
     if title != None:
         plt.title(title)
-    plt.plot(measure, linewidth=4)
+    plt.plot(measure, linewidth=2)
+    #plt.legend(['no preparation', 'anchor for W', 'kmeans for H', 'kmeans + anchor for W'])
+    plt.legend(['ALS', 'MU', 'Block'])
     plt.draw()
 
 
@@ -42,12 +45,30 @@ def show_matrices_recovered(W_r, H_r, W, H, munkres, cfg=config.default_config()
     plt.draw()
 
 
-def show_matrix(A, name=None, fig=plt.figure()):
-    plt.figure(fig)
+def show_matrix(A, name=None, fig=None):
+    if not fig:
+        plt.figure()
+    else:
+        plt.figure(fig)
     plt.imshow(1-W)
     plt.gray()
     if name:
         plt.title(name)
+    plt.draw()
+
+
+def plot_matrix(A, title=None, labels=None, fig=None):
+    res = np.array([x for x in bh_tsne(A, verbose=True)])
+    if not fig:
+        plt.figure()
+    else:
+        plt.figure(fig)
+    if title:
+        plt.title(title)
+    if labels == None:
+        plt.scatter(res[:, 0], res[:, 1], s=20, alpha=0.5)
+    else:
+        plt.scatter(res[:, 0], res[:, 1], s=20, c=labels, alpha=0.5)
     plt.draw()
 
 
@@ -64,5 +85,5 @@ def show_topics(W, words_number=5, vocab=None, topic_idxs=None):
 if __name__ != '__main__':
     font = {'family' : 'normal',
             'weight' : 'normal',
-            'size'   : 32}
+            'size'   : 12}
     ml.rc('font', **font)
