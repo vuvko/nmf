@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
+<<<<<<< HEAD
 from __future__ import print_function
 
 import config
